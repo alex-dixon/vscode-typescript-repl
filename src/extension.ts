@@ -2,49 +2,56 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-import { TransformOutput, transformSync } from "swc-ts-repl-transpile"
+import {TransformOutput, transformSync} from "swc-ts-repl-transpile"
+import {tsToJS} from "./transpile";
+import {createREPL, evaluate} from "./repl";
 
-export const tsToJS = (code: string): TransformOutput => {
-  const result = transformSync(code)
-  console.log("transform result", result)
-  return result
-}
+let myREPL = createREPL({name: 'test-repl-id'})
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "typescript-repl" is now active!');
+  // Use the console to output diagnostic information (console.log) and errors (console.error)
+  // This line of code will only be executed once when your extension is activated
+  console.log('Congratulations, your extension "typescript-repl" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('typescript-repl.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from typescript-repl!');
+  // The command has been defined in the package.json file
+  // Now provide the implementation of the command with registerCommand
+  // The commandId parameter must match the command field in package.json
+  let disposable = vscode.commands.registerCommand('typescript-repl.helloWorld', async () => {
+    // The code you place here will be executed every time your command is executed
+    // Display a message box to the user
+    vscode.window.showInformationMessage('Hello World from typescript-repl!');
 
-		const editor = vscode.window.activeTextEditor;
-		if (!editor) {
-			// No open text editor
-			 console.log("no editor")
-			vscode.window.showInformationMessage('no selected editor?');
-			return;
-		}
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      // No open text editor
+      console.log("no editor")
+      vscode.window.showInformationMessage('no selected editor?');
+      return;
+    }
+    // const repl = createREPL({name:'test-repl-id'})
 
-		var selection = editor.selection;
-		var text = editor.document.getText(selection);
+    const selection = editor.selection;
+    const text = editor.document.getText(selection);
 
-		vscode.window.showInformationMessage(tsToJS(text).code);
+    const result = await evaluate({code: text, filename: "repl.ts", replId: myREPL.id, }, undefined)
 
-	});
+    if (result.type === 'error') {
+      vscode.window.showInformationMessage(result.text);
+    } else if (result.type === 'print') {
+      vscode.window.showInformationMessage(result.result);
+    } else {
+      console.error(result)
+      throw new Error("Unhandled result")
+    }
+  });
 
-	context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-	console.log("deactivated")
+  console.log("deactivated")
 }

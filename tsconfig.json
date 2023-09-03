@@ -5,7 +5,7 @@
 		"outDir": "out",
 		"sourceMap": true,
 		"rootDir": "src",
-		"strict": true , 
+		"strict": false ,
 		"skipDefaultLibCheck": true,
 		"skipLibCheck": true
 		/* Additional Checks */
