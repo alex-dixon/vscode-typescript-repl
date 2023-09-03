@@ -13,7 +13,7 @@ tsnode.register({
 })
 
 let myREPL = createREPL({name: 'test-repl-id'})
-
+let chan = vscode.window.createOutputChannel("typescript-repl")
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -56,8 +56,12 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (result.type === 'error') {
         vscode.window.showInformationMessage(result.text);
+        chan.appendLine(result.text)
       } else if (result.type === 'print') {
-        vscode.window.showInformationMessage(result.result);
+        chan.appendLine(result.result)
+        // TODO. This is annoying because it forces the user to look at the panel...It looks like it doesn't show up otherwise though
+        chan.show(true)
+        // vscode.window.showInformationMessage(result.result);
       } else {
         console.error(result)
         throw new Error("Unhandled result")
@@ -74,4 +78,5 @@ export function activate(context: vscode.ExtensionContext) {
 // This method is called when your extension is deactivated
 export function deactivate() {
   console.log("deactivated")
+  // chan.dispose()
 }
