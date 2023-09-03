@@ -219,7 +219,8 @@ export const createREPL = (args: {
 export type SetCurrentNamespaceInput = {
   replId: string
   sessionId: string
-  namespace: string
+  namespace: string,
+  __dirname:string
 }
 export const setCurrentNS = (args: SetCurrentNamespaceInput, socket: unknown) => {
   log("repl:set-current-namespace", args)
@@ -235,7 +236,7 @@ export const setCurrentNS = (args: SetCurrentNamespaceInput, socket: unknown) =>
   }
   const module = new Module(args.namespace)
   const bindings = {
-    require: createRequire(repl.namespaces),
+    require: createRequire(repl.namespaces, args.__dirname),
     module,
     __filename: args.namespace,
     __dirname: "<virtual-namespace>",
@@ -317,6 +318,7 @@ export const evaluateSync = (args: EvaluateSyncInput, _socket: unknown): PrintRe
 type EvaluateInput = {
   replId: string
   filename: string
+  __dirname:string,
   code: string
 }
 export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<ErrorResult|PrintResult> => {
@@ -350,7 +352,7 @@ export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<Err
     }
     const ctx = {
       exports: {},
-      require: createRequire(repl.namespaces),
+      require: createRequire(repl.namespaces,args.__dirname),
       // there are 100 console methods. don't know if we could use an ES6 Proxy here since it goes to the vm...
       console: {
         debug: consoleSender,

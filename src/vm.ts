@@ -4,7 +4,7 @@ import * as util from "util"
 import { Namespaces } from "./namespace"
 
 const isNamespaceModuleIdent = (id: string) => id.startsWith("ns:")
-export const createRequire = (namespaces: Namespaces) => {
+export const createRequire = (namespaces: Namespaces,__dirname:string) => {
   const baseRequire = Module.createRequire(__dirname)
   // @ts-ignore
   let require: NodeJS.Require = (id: string) => {

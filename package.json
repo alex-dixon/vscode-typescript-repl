@@ -16,6 +16,18 @@
       {
         "command": "typescript-repl.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "typescript-repl.evaluate",
+        "title": "Evaluate"
+      }
+    ],
+    "keybindings":[
+      {
+        "command": "typescript-repl.evaluate",
+        "key": "ctrl+cmd+e",
+        "mac": "ctrl+cmd+e",
+        "when": "editorHasSelection && editorLangId == typescript"
       }
     ]
   },
