@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+dependencies:
+  swc-ts-repl-transpile:
+    specifier: file:/Users/alexdixon/personal/fit2/packages/ts-repl-transpile
+    version: file:../../personal/fit2/packages/ts-repl-transpile
+
 devDependencies:
   '@types/mocha':
     specifier: ^10.0.1
@@ -1474,3 +1479,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  file:../../personal/fit2/packages/ts-repl-transpile:
+    resolution: {directory: ../../personal/fit2/packages/ts-repl-transpile, type: directory}
+    name: swc-ts-repl-transpile
+    engines: {node: '>= 10'}
+    dev: false

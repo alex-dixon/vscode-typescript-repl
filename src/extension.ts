@@ -2,6 +2,14 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+import { TransformOutput, transformSync } from "swc-ts-repl-transpile"
+
+export const tsToJS = (code: string): TransformOutput => {
+  const result = transformSync(code)
+  console.log("transform result", result)
+  return result
+}
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -29,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
 		var selection = editor.selection;
 		var text = editor.document.getText(selection);
 
-		vscode.window.showInformationMessage(text);
+		vscode.window.showInformationMessage(tsToJS(text).code);
 
 	});
 

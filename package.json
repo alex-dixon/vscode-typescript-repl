@@ -27,6 +27,9 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "dependencies": {
+    "swc-ts-repl-transpile": "file:/Users/alexdixon/personal/fit2/packages/ts-repl-transpile"
+  },
   "devDependencies": {
     "@types/vscode": "^1.81.0",
     "@types/mocha": "^10.0.1",

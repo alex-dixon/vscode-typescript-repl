@@ -2,6 +2,10 @@
 
 This is the README for "typescript-repl". After writing up a brief description, we recommend including the following sections.
 
+## Gotchas
+when local dev must symlink swc-ts-repl-transpile / reference the path to the directory that contains its package.json. Doing so does not copy the built file in the same directory e.g. arch_blah.node
+This must be copied into the project's node modules dir corresponding to the symlink pnpm creates.
+
 ## Features
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
