@@ -1,13 +1,18 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as tsnode from 'ts-node'
 
-import { TransformOutput, transformSync } from "swc-ts-repl-transpile"
-import { tsToJS } from "./transpile";
-import { createREPL, evaluate } from "./repl";
+import {TransformOutput, transformSync} from "swc-ts-repl-transpile"
+import {tsToJS} from "./transpile";
+import {createREPL, evaluate} from "./repl";
 import * as path from 'node:path'
+tsnode.register({
+  transpileOnly: true,
 
-let myREPL = createREPL({ name: 'test-repl-id' })
+})
+
+let myREPL = createREPL({name: 'test-repl-id'})
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -42,8 +47,11 @@ export function activate(context: vscode.ExtensionContext) {
     const currentlyOpenTabDirname = path.dirname(currentlyOpenTabfilePath);
 
     try {
-      const result = await evaluate({ code: text, filename: currentlyOpenTabfileName, replId: myREPL.id,
-        __dirname:currentlyOpenTabDirname
+      const result = await evaluate({
+        code: text,
+        filename: currentlyOpenTabfileName,
+        replId: myREPL.id,
+        __dirname: currentlyOpenTabDirname
       }, undefined)
 
       if (result.type === 'error') {

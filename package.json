@@ -22,7 +22,7 @@
         "title": "Evaluate"
       }
     ],
-    "keybindings":[
+    "keybindings": [
       {
         "command": "typescript-repl.evaluate",
         "key": "ctrl+cmd+e",
@@ -46,6 +46,7 @@
     "@types/ramda": "^0.29.3",
     "ramda": "^0.29.0",
     "swc-ts-repl-transpile": "file:/Users/alexdixon/personal/fit2/packages/ts-repl-transpile",
+    "ts-node": "^10.9.1",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

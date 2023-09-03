@@ -1,10 +1,11 @@
-import { Module } from "module"
+import {Module} from "module"
 import * as vm from "vm"
 import * as util from "util"
-import { Namespaces } from "./namespace"
+import {Namespaces} from "./namespace"
+import * as path from 'node:path'
 
 const isNamespaceModuleIdent = (id: string) => id.startsWith("ns:")
-export const createRequire = (namespaces: Namespaces,__dirname:string) => {
+export const createRequire = (namespaces: Namespaces, __dirname: string) => {
   const baseRequire = Module.createRequire(__dirname)
   // @ts-ignore
   let require: NodeJS.Require = (id: string) => {
@@ -16,12 +17,28 @@ export const createRequire = (namespaces: Namespaces,__dirname:string) => {
       }
       return namespace.context.exports || {}
     }
+    // resolve relative paths outside extension-land
+    if (id.startsWith("./")) {
+      return baseRequire(path.join(__dirname, id))
+    }
     return baseRequire(id)
   }
-  Object.defineProperty(require, "name", { value: "require" })
+  Object.defineProperty(require, "name", {value: "require"})
   require.main = baseRequire.main
   require.cache = baseRequire.cache
   require.resolve = baseRequire.resolve
+  // this may be needed, don't know yet
+  // @ts-ignore
+  // require.resolve = (id: string, options?: {
+  //   paths?: string[];
+  // }) => {
+  //   if (id.startsWith("./")) {
+  //     // to
+  //     return path.resolve(path.join(__dirname, id) + ".ts")
+  //   }
+  //   return baseRequire.resolve(id, options)
+  // }
+  // require.resolve.paths = baseRequire.resolve.paths
   require.extensions = baseRequire.extensions
   return require
 }
@@ -34,12 +51,13 @@ export const assignGlobal = (context: vm.Context) => {
   // guard against possibility our global has more than the vm
   const globalDescriptors = Object.getOwnPropertyNames(_global)
   globalDescriptors.forEach((k) => {
-    if (!globalBuiltinNames.has(k))
+    if (!globalBuiltinNames.has(k)) {
       Object.defineProperty(context, k, {
         // @ts-expect-error
         __proto__: null,
         ...Object.getOwnPropertyDescriptor(_global, k),
       })
+    }
   })
 }
 

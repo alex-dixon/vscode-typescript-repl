@@ -6,6 +6,7 @@ import {tsToJS} from "./transpile"
 import {Module} from "module"
 import {v4 as uuid} from "uuid"
 import * as R from "ramda"
+import * as path from 'node:path'
 
 
 export type REPLInput =
@@ -234,12 +235,12 @@ export const setCurrentNS = (args: SetCurrentNamespaceInput, socket: unknown) =>
   if (args.namespace in repl.namespaces) {
     return
   }
-  const module = new Module(args.namespace)
+  const module = new Module(path.join(args.__dirname,args.namespace))
   const bindings = {
     require: createRequire(repl.namespaces, args.__dirname),
     module,
     __filename: args.namespace,
-    __dirname: "<virtual-namespace>",
+    __dirname: args.__dirname,//"<virtual-namespace>",
   }
   repl.namespaces[args.namespace] = {
     name: args.namespace,
@@ -363,6 +364,17 @@ export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<Err
       },
     }
     assignGlobal(ctx)
+    // todo. is this needed
+    // @ts-ignore
+    // ctx.__dirname=args.__dirname
+    // // @ts-ignore
+    // ctx.__filename=args.filename
+    // const module = new Module(path.join(args.__dirname,args.filename))
+    
+    // // @ts-ignore
+    // ctx.module=module
+
+
     // namespaces share nothing with the repl
     // could change this so process for example is shared, and attach
     // these at repl creation
