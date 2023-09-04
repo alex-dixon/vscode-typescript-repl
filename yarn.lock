@@ -3201,7 +3201,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swc-ts-repl-transpile@workspace:packages/ts-repl-transpile":
+"swc-ts-repl-transpile@workspace:^, swc-ts-repl-transpile@workspace:packages/ts-repl-transpile":
   version: 0.0.0-use.local
   resolution: "swc-ts-repl-transpile@workspace:packages/ts-repl-transpile"
   dependencies:
@@ -3448,6 +3448,7 @@ __metadata:
     glob: ^10.3.3
     mocha: ^10.2.0
     ramda: ^0.29.0
+    swc-ts-repl-transpile: "workspace:^"
     ts-node: ^10.9.1
     typescript: ^5.1.6
     uuid: ^9.0.0

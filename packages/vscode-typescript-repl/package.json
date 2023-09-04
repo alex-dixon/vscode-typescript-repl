@@ -57,6 +57,7 @@
     "@effect/schema": "^0.34.0",
     "@types/ramda": "^0.29.3",
     "ramda": "^0.29.0",
+    "swc-ts-repl-transpile": "workspace:^",
     "ts-node": "^10.9.1",
     "uuid": "^9.0.0"
   },
