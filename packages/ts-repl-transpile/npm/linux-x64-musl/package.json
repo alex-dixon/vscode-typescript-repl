@@ -1,0 +1,21 @@
+{
+  "name": "swc-ts-repl-transpile-linux-x64-musl",
+  "version": "0.0.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "x64"
+  ],
+  "main": "swc-ts-repl-transpile.linux-x64-musl.node",
+  "files": [
+    "swc-ts-repl-transpile.linux-x64-musl.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "libc": [
+    "musl"
+  ]
+}

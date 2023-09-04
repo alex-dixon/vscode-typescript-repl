@@ -1,0 +1,41 @@
+[package]
+edition = "2021"
+name = "swc-ts-repl-transpile"
+version = "0.0.0"
+build = "build.rs"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.10.6", default-features = false, features = ["napi4"] }
+napi-derive = "2.9.4"
+swc_core = { version = "0.55.5", features = [
+    "ecma_ast",
+    "common_concurrent",
+    "bundler",
+    "swc_atoms",
+    "ecma_transforms_typescript",
+    "ecma_transforms_module",
+    "ecma_utils",
+    "ecma_loader",
+    "ecma_transforms",
+    "ecma_visit",
+    "base_node",
+    "base_concurrent",
+    "ecma_codegen"
+] }
+env_logger = "0.10.0"
+log = "0.4.17"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["unbounded_depth"] }
+swc_plugin_typescript_repl = { path =  "../swc-plugin-ts-repl"}
+anyhow = "1"
+
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true
