@@ -1,17 +1,20 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+console.log("HECKINNNN")
 import * as vscode from 'vscode';
-import * as tsnode from 'ts-node'
+// import * as tsnode from 'ts-node'
 
 import {TransformOutput, transformSync} from "swc-ts-repl-transpile"
 import {tsToJS} from "./transpile";
 import {createREPL, evaluate} from "./repl";
 import * as path from 'node:path'
+// import * as typescript from 'typescript'
+// console.log("typescript version", typescript.version)
 
-tsnode.register({
-  transpileOnly: true,
-
-})
+// tsnode.register({
+//   transpileOnly: true,
+//
+// })
 
 let myREPL = createREPL({name: 'test-repl-id'})
 let chan = vscode.window.createOutputChannel("typescript-repl")
