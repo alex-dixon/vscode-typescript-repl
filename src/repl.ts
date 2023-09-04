@@ -37,7 +37,7 @@ export type REPLOutput =
   filename: string;
   input?: REPLInput
 }
-  | ErrorResult  | PrintResult
+  | ErrorResult | PrintResult
 
 
 const log = console.log
@@ -157,12 +157,12 @@ export type REPLInboundEventMap = {
 }
 
 const replError = {
-  repl_not_found: (replId: string,filename:string):ErrorResult =>
+  repl_not_found: (replId: string, filename: string): ErrorResult =>
     ({
       type: "error",
       text: `No repl for replId ${replId}`,
       // todo. do not default
-      filename: filename||"repl.ts",
+      filename: filename || "repl.ts",
     } as const),
 }
 
@@ -197,10 +197,10 @@ const api = {
 
 export const createREPL = (args: {
   name?: string,
-  id?:string
+  id?: string
 },) => {
   log("repl:new")
-  const replId = args.id||uuid()
+  const replId = args.id || uuid()
   let namespaces = {}
   // todo. set unhandled error listeners for the repl..? or must be per namespace ctx?
   // make sure it always goes to the right socket(s).
@@ -221,7 +221,7 @@ export type SetCurrentNamespaceInput = {
   replId: string
   sessionId: string
   namespace: string,
-  __dirname:string
+  __dirname: string
 }
 export const setCurrentNS = (args: SetCurrentNamespaceInput, socket: unknown) => {
   log("repl:set-current-namespace", args)
@@ -235,7 +235,7 @@ export const setCurrentNS = (args: SetCurrentNamespaceInput, socket: unknown) =>
   if (args.namespace in repl.namespaces) {
     return
   }
-  const module = new Module(path.join(args.__dirname,args.namespace))
+  const module = new Module(path.join(args.__dirname, args.namespace))
   const bindings = {
     require: createRequire(repl.namespaces, args.__dirname),
     module,
@@ -260,12 +260,12 @@ export type EvaluateSyncInput = {
   broadcast?: boolean
 }
 export type EvaluateSyncOutput = REPLOutput
-export const evaluateSync = (args: EvaluateSyncInput, _socket: unknown): PrintResult|ErrorResult => {
+export const evaluateSync = (args: EvaluateSyncInput, _socket: unknown): PrintResult | ErrorResult => {
   log("repl:evaluate-sync", args)
   const repl = repls.get(args.replId)
   if (!repl) {
     // todo. return consistent data
-    return replError.repl_not_found(args.replId,args.filename) as unknown as ErrorResult
+    return replError.repl_not_found(args.replId, args.filename) as unknown as ErrorResult
   }
   let namespace = repl.namespaces[args.filename]
   if (!namespace) {
@@ -319,10 +319,11 @@ export const evaluateSync = (args: EvaluateSyncInput, _socket: unknown): PrintRe
 type EvaluateInput = {
   replId: string
   filename: string
-  __dirname:string,
+  __dirname: string,
   code: string
 }
-export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<ErrorResult|PrintResult> => {
+
+export const evaluate = async (args: EvaluateInput, socket: unknown): Promise<ErrorResult | PrintResult> => {
   log("repl:evaluate", args)
 
   const {replId} = args
@@ -353,7 +354,7 @@ export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<Err
     }
     const ctx = {
       exports: {},
-      require: createRequire(repl.namespaces,args.__dirname),
+      require: createRequire(repl.namespaces, args.__dirname),
       // there are 100 console methods. don't know if we could use an ES6 Proxy here since it goes to the vm...
       console: {
         debug: consoleSender,
@@ -370,7 +371,7 @@ export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<Err
     // // @ts-ignore
     // ctx.__filename=args.filename
     // const module = new Module(path.join(args.__dirname,args.filename))
-    
+
     // // @ts-ignore
     // ctx.module=module
 
@@ -400,7 +401,13 @@ export const evaluate = async (args: EvaluateInput, socket: unknown):Promise<Err
     }
   }
 
-  const jsCode = tsToJS(args.code)
+  let jsCode
+  try {
+    jsCode = tsToJS(args.code)
+  } catch (e) {
+    console.error("tsToJS error", e)
+    return e
+  }
 
   let ret
   try {
