@@ -13,7 +13,7 @@
 				"--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-typescript-repl"
 			],
 			"outFiles": [
-				"${workspaceFolder}packages/vscode-typescript-repl/out/**/*.js"
+				"${workspaceFolder}packages/vscode-typescript-repl/dist/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}"
 		},
