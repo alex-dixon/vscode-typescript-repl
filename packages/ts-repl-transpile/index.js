@@ -246,7 +246,8 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { evaluableSpans, transformSync } = nativeBinding
+const { evaluableSpans, transformSync, transformSyncRegular } = nativeBinding
 
 module.exports.evaluableSpans = evaluableSpans
 module.exports.transformSync = transformSync
+module.exports.transformSyncRegular = transformSyncRegular

@@ -10,7 +10,7 @@ extern crate napi_derive;
 use std::sync::Arc;
 use std::borrow::Borrow;
 use swc_core::base::{Compiler, try_with_handler};
-use swc_core::common::{FileName, FilePathMapping, SourceMap};
+use swc_core::common::{FileName, FilePathMapping, Globals, SourceMap};
 use swc_core::common::sync::Lazy;
 use swc_core::ecma::codegen::text_writer::JsWriter;
 use swc_core::ecma::codegen::Emitter;
@@ -44,7 +44,6 @@ fn get_compiler() -> Arc<Compiler> {
     COMPILER.clone()
 }
 
-// Copied from swc
 #[derive(Serialize)]
 #[napi_derive::napi(object)]
 pub struct TransformOutput {
@@ -53,6 +52,15 @@ pub struct TransformOutput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub map: Option<String>,
 }
+// Copied from swc
+#[derive(Serialize)]
+#[napi_derive::napi(object)]
+pub struct TransformOutputRegular {
+    pub code: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub map: Option<String>,
+}
+
 
 #[derive(Serialize)]
 #[napi_derive::napi(object)]
@@ -115,8 +123,9 @@ pub fn evaluable_spans(source: String, target: u32) -> napi::Result<EvaluableSpa
 /// is suitable for usage in a REPL environment.
 #[napi]
 pub fn transform_sync(source: String) -> napi::Result<TransformOutput> {
-    let c = get_compiler();
-    let cm = c.cm.clone();
+    // let c = get_compiler();
+    // let cm = c.cm.clone();
+    let cm: Arc<SourceMap> = Default::default();
 
     let output = GLOBALS.set(&Default::default(), || {
         let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
@@ -187,6 +196,79 @@ pub fn transform_sync(source: String) -> napi::Result<TransformOutput> {
         ).map_err(|err| napi::Error::new(Status::GenericFailure, format!("{:?}", err)))
     });
     output
+}
+
+/// Translates TS to JS
+#[napi]
+pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputRegular> {
+    println!("How could this be so dum?");
+    let cm: Arc<SourceMap> = Default::default();
+    let globals = Globals::new();
+
+    let output = GLOBALS.set(&globals, || {
+        let handler = Handler::with_tty_emitter(ColorConfig::Auto, true, false, Some(cm.clone()));
+        let sf = cm.new_source_file(FileName::Anon, source);
+        let comments = SingleThreadedComments::default();
+        let lexer = Lexer::new(
+            Syntax::Typescript(TsConfig {
+                decorators: true,
+                ..Default::default()
+            }),
+            Default::default(),
+            SourceFileInput::from(sf.borrow()),
+            Some(&comments),
+        );
+
+        let mut parser = Parser::new_from(lexer);
+
+        for err in parser.take_errors() {
+            err.into_diagnostic(&handler).emit();
+        }
+
+        let mut module = parser
+            .parse_typescript_module()
+            .map_err(|err| err.into_diagnostic(&handler).emit())
+            .expect("failed to parse module");
+
+        let top_level_mark = Mark::new();
+        module = module.fold_with(&mut strip_with_config(TSTransformConfig {
+            import_not_used_as_values: ImportsNotUsedAsValues::Preserve,
+            ..Default::default()
+        }, top_level_mark));
+
+
+        module.visit_mut_with(&mut common_js(
+            Mark::new(),
+            CommonJSConfig {
+                strict: false,
+                strict_mode: false,
+                ..Default::default()
+            },
+            enable_available_feature_from_es_version(EsVersion::Es3),
+            Some(&comments),
+        ));
+
+        // let tla = transform_top_level_await(&module);
+        // if tla.has_top_level_await {
+        //     module = tla.module.unwrap();
+        // };
+
+        let mut buf = vec![];
+        let mut emitter = Emitter {
+            cfg: Default::default(),
+            cm: cm.clone(),
+            comments: Some(&comments),
+            wr: JsWriter::new(cm.clone(), "\n".into(), &mut buf, None),
+        };
+
+        emitter.emit_module(&module).map(|_|
+            TransformOutputRegular {
+                code: String::from_utf8_lossy(&buf).into(),
+                map: None,
+            }
+        ).map_err(|err| napi::Error::new(Status::GenericFailure, format!("{:?}", err)))
+    });
+    output.clone()
 }
 
 // can't run tests without a linker error?

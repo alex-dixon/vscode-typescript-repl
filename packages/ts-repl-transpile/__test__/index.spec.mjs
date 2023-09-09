@@ -1,6 +1,6 @@
 import test from "ava";
 
-import { transformSync, evaluableSpans } from "../index.js";
+import { transformSync, evaluableSpans, transformSyncRegular } from "../index.js";
 
 const makeSpanTestInput = (s) => {
   const pos = s.indexOf("|");
@@ -207,3 +207,17 @@ test("top-level await return last if await", (t) => {
    isAsync: true,
  })
 });
+
+test("just rewrite typescript to javascript",(t)=> {
+  const input = `const foo = async (): Promise<number> => 42;
+  await foo()`;
+  const output = transformSyncRegular(input);
+  const output2 = transformSync(input);
+  console.log("the output", output.code.toString());
+  t.deepEqual(output, {
+    code: `const foo = async ()=>42;
+await foo();
+`
+  })
+
+})

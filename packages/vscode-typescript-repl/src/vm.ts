@@ -5,6 +5,7 @@ import {Namespaces} from "./namespace"
 import * as path from 'node:path'
 
 const isNamespaceModuleIdent = (id: string) => id.startsWith("ns:")
+
 export const createRequire = (namespaces: Namespaces, __dirname: string) => {
   const baseRequire = Module.createRequire(__dirname)
   // @ts-ignore
@@ -19,7 +20,13 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
     }
     // resolve relative paths outside extension-land
     if (id.startsWith("./")) {
-      return baseRequire(path.join(__dirname, id))
+      console.log("Requiring a relative filesystem path thing?", {
+        id, __dirname,
+        fullPath: path.join(__dirname, id) + ".ts"
+      })
+
+      // return baseRequire(id)
+      return baseRequire(path.join(__dirname, id) + ".ts")
     }
     return baseRequire(id)
   }
