@@ -1,0 +1,90 @@
+{
+  "name": "vscode-typescript-repl",
+  "displayName": "typescript-repl",
+  "description": "typescript-repl",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.81.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "publisher": "Alex Dixon",
+  "activationEvents": [],
+  "main": "./dist/index.js",
+  "contributes": {
+    "menus": {
+      "editor/context": [
+        {
+          "command": "typescript-repl.evaluate"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "typescript-repl.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "typescript-repl.evaluate",
+        "title": "Evaluate"
+      },
+      {
+        "command": "typescript-repl.evaluate-file",
+        "title": "Evaluate File",
+        "category": "TypeScript REPL"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "typescript-repl.evaluate",
+        "key": "ctrl+cmd+e",
+        "mac": "ctrl+cmd+e",
+        "when": "editorHasSelection && editorLangId == typescript"
+      }
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alex-dixon/vscode-typescript-repl.git"
+  },
+  "scripts": {
+    "build": "esbuild ./src/extension.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node --external:'@swc/*' --external:'*.node'",
+    "watch": "yarn build --watch",
+    "test": "node ./dist/test/runTest.js",
+    "package": "yarn build && ./postbuild.sh && vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "@effect/data": "^0.18.3",
+    "@effect/io": "^0.39.0",
+    "@effect/schema": "^0.34.0",
+    "@swc/core": "^1.3.83",
+    "@types/ramda": "^0.29.3",
+    "pirates": "^4.0.6",
+    "ramda": "^0.29.0",
+    "swc-ts-repl-transpile": "workspace:^",
+    "typescript": "^5.2.2",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.81.0",
+    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@typescript-eslint/parser": "^6.4.1",
+    "@vercel/ncc": "^0.36.1",
+    "@vscode/test-electron": "^2.3.4",
+    "@vscode/vsce": "^2.21.0",
+    "esbuild": "^0.19.2",
+    "eslint": "^8.47.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0"
+  },
+  "bugs": {
+    "url": "https://github.com/alex-dixon/vscode-typescript-repl/issues"
+  },
+  "homepage": "https://github.com/alex-dixon/vscode-typescript-repl#readme",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

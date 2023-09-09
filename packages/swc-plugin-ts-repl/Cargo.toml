@@ -1,0 +1,28 @@
+[package]
+name = "swc_plugin_typescript_repl"
+version = "0.1.0"
+edition = "2021"
+
+# TODO. needed for a plugin but does not work if using lib with napi
+# can only have one library config here but may be able to output multiple formats using the
+# cargo cli
+# https://doc.rust-lang.org/reference/linkage.html
+#[lib]
+#crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+
+[dependencies]
+serde = "1"
+sha1 = "*"
+swc_core = { version = "*", features = [
+    "ecma_plugin_transform",
+    "ecma_parser",
+    "ecma_transforms_typescript",
+    "ecma_transforms_module",
+] }
+
+# .cargo/config defines few alias to build plugin.
+# cargo build-wasi generates wasm-wasi32 binary
+# cargo build-wasm32 generates wasm32-unknown-unknown binary.

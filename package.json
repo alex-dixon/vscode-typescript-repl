@@ -1,64 +1,10 @@
 {
-  "name": "typescript-repl",
-  "displayName": "typescript-repl",
-  "description": "typescript-repl",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.81.0"
-  },
-  "categories": [
-    "Other"
+  "name": "root",
+  "packageManager": "yarn@3.6.3",
+  "workspaces": [
+    "packages/*"
   ],
-  "activationEvents": [],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "typescript-repl.helloWorld",
-        "title": "Hello World"
-      },
-      {
-        "command": "typescript-repl.evaluate",
-        "title": "Evaluate"
-      }
-    ],
-    "keybindings": [
-      {
-        "command": "typescript-repl.evaluate",
-        "key": "ctrl+cmd+e",
-        "mac": "ctrl+cmd+e",
-        "when": "editorHasSelection && editorLangId == typescript"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "pnpm run compile && pnpm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
-  },
-  "dependencies": {
-    "@effect/data": "^0.18.3",
-    "@effect/io": "^0.39.0",
-    "@effect/schema": "^0.34.0",
-    "@types/ramda": "^0.29.3",
-    "ramda": "^0.29.0",
-    "swc-ts-repl-transpile": "file:/Users/alexdixon/personal/fit2/packages/ts-repl-transpile",
-    "ts-node": "^10.9.1",
-    "uuid": "^9.0.0"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.1",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.81.0",
-    "@typescript-eslint/eslint-plugin": "^6.4.1",
-    "@typescript-eslint/parser": "^6.4.1",
-    "@vscode/test-electron": "^2.3.4",
-    "eslint": "^8.47.0",
-    "glob": "^10.3.3",
-    "mocha": "^10.2.0",
-    "typescript": "^5.1.6"
+  "resolutions": {
+    "@napi-rs/cli": "2.14.3"
   }
 }
