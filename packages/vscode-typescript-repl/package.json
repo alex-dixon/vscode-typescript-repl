@@ -1,7 +1,7 @@
 {
   "name": "vscode-typescript-repl",
-  "displayName": "typescript-repl",
-  "description": "typescript-repl",
+  "displayName": "TypeScript REPL",
+  "description": "Create a TypesScript program from vscode files",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.81.0"
@@ -9,7 +9,7 @@
   "categories": [
     "Other"
   ],
-  "publisher": "Alex Dixon",
+  "publisher": "AlexDixon",
   "activationEvents": [],
   "main": "./dist/index.js",
   "contributes": {
@@ -50,7 +50,7 @@
   },
   "scripts": {
     "build": "esbuild ./src/extension.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node --external:'@swc/*' --external:'*.node'",
-    "watch": "yarn build --watch",
+    "watch": "yarn build --watch --sourcemap",
     "test": "node ./dist/test/runTest.js",
     "package": "yarn build && ./postbuild.sh && vsce package --no-dependencies"
   },

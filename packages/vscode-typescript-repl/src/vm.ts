@@ -24,9 +24,10 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
         id, __dirname,
         fullPath: path.join(__dirname, id) + ".ts"
       })
-
-      // return baseRequire(id)
-      return baseRequire(path.join(__dirname, id) + ".ts")
+      const resolved = baseRequire.resolve(id)
+      console.log('resolved',resolved)
+      return baseRequire(resolved)
+      // return baseRequire(path.join(__dirname, id) + ".ts")
     }
     return baseRequire(id)
   }
