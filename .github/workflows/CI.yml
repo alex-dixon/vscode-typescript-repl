@@ -33,20 +33,20 @@ jobs:
               cd packages/ts-repl-transpile
               yarn build
             target: x86_64-pc-windows-msvc
-          - host: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
-            build: |-
-              cd packages/ts-repl-transpile
-              set -e &&
-              yarn build --target x86_64-unknown-linux-gnu &&
-              strip *.node
 #          - host: ubuntu-latest
-#            target: x86_64-unknown-linux-musl
-#            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-#            build: |
+#            target: x86_64-unknown-linux-gnu
+#            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
+#            build: |-
 #              cd packages/ts-repl-transpile
-#              set -e && yarn build && strip *.node
+#              set -e &&
+#              yarn build --target x86_64-unknown-linux-gnu &&
+#              strip *.node
+          - host: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+            build: |
+              cd packages/ts-repl-transpile
+              set -e && yarn build && strip *.node
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
@@ -160,49 +160,15 @@ jobs:
       - name: Test bindings
         run: yarn test
         working-directory: packages/ts-repl-transpile
-  test-linux-x64-gnu-binding:
-    name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
-    needs:
-      - build
-    strategy:
-      fail-fast: false
-      matrix:
-        # note. for vscode plugin only need to test the version it uses
-        # pretty sure this is 18 since current electron version dependency is 25.8.
-        node:
-#          - '16'
-          - '18'
-#          - '20'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
-          cache: yarn
-      - name: Install dependencies
-        run: yarn install
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: bindings-x86_64-unknown-linux-gnu
-          path: packages/ts-repl-transpile
-      - name: List packages
-        run: ls -R .
-        shell: bash
-        working-directory: packages/ts-repl-transpile
-      - name: Test bindings
-        working-directory: packages/ts-repl-transpile
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
-#  test-linux-x64-musl-binding:
-#    name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
+#  test-linux-x64-gnu-binding:
+#    name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
 #    needs:
 #      - build
 #    strategy:
 #      fail-fast: false
 #      matrix:
+#        # note. for vscode plugin only need to test the version it uses
+#        # pretty sure this is 18 since current electron version dependency is 25.8.
 #        node:
 ##          - '16'
 #          - '18'
@@ -217,13 +183,11 @@ jobs:
 #          check-latest: true
 #          cache: yarn
 #      - name: Install dependencies
-#        run: |
-#          yarn config set supportedArchitectures.libc "musl"
-#          yarn install
+#        run: yarn install
 #      - name: Download artifacts
 #        uses: actions/download-artifact@v3
 #        with:
-#          name: bindings-x86_64-unknown-linux-musl
+#          name: bindings-x86_64-unknown-linux-gnu
 #          path: packages/ts-repl-transpile
 #      - name: List packages
 #        run: ls -R .
@@ -231,7 +195,43 @@ jobs:
 #        working-directory: packages/ts-repl-transpile
 #      - name: Test bindings
 #        working-directory: packages/ts-repl-transpile
-#        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
+#        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
+  test-linux-x64-musl-binding:
+    name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+#          - '16'
+          - '18'
+#          - '20'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+          cache: yarn
+      - name: Install dependencies
+        run: |
+          yarn config set supportedArchitectures.libc "musl"
+          yarn install
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: bindings-x86_64-unknown-linux-musl
+          path: packages/ts-repl-transpile
+      - name: List packages
+        run: ls -R .
+        shell: bash
+        working-directory: packages/ts-repl-transpile
+      - name: Test bindings
+        working-directory: packages/ts-repl-transpile
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
     needs:
@@ -274,8 +274,8 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - test-macOS-windows-binding
-      - test-linux-x64-gnu-binding
-#      - test-linux-x64-musl-binding
+#      - test-linux-x64-gnu-binding
+      - test-linux-x64-musl-binding
       - test-linux-arm-gnueabihf-binding
     steps:
       - uses: actions/checkout@v3
