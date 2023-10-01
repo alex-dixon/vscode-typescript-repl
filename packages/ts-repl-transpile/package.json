@@ -34,7 +34,8 @@
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "npm run build:debug && ava",
+    "test:ci": "ava",
+    "test": "yarn build:debug && ava",
     "universal": "napi universal",
     "version": "napi version"
   }

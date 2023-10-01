@@ -2,7 +2,7 @@
   "name": "vscode-typescript-repl",
   "displayName": "TypeScript REPL",
   "description": "Run TypeScript instantly.",
-  "version": "0.0.2",
+  "version": "0.0.3-alpha.0",
   "engines": {
     "vscode": "^1.81.0"
   },

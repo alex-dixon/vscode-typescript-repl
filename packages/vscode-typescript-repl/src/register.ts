@@ -1,5 +1,6 @@
 import {addHook} from "pirates";
 import * as ts from "typescript";
+import {transformSync} from "swc-ts-repl-transpile";
 
 const matcher = (filename) => {
   console.log("matcher", filename)
@@ -12,11 +13,13 @@ console.log("gonna add hook")
 const revert = addHook(
   (code, filename) => {
     try {
-      let result = ts.transpileModule(code, {fileName: filename, compilerOptions: {
-        module: ts.ModuleKind.CommonJS,
-          target: ts.ScriptTarget.ES2022,
+      return transformSync(code).code
 
-        }});
+      // let result = ts.transpileModule(code, {fileName: filename, compilerOptions: {
+      //   module: ts.ModuleKind.CommonJS,
+      //     target: ts.ScriptTarget.ES2022,
+      //
+      //   }});
 
       // const result = swc.transformSync(code, {
       //   filename,
@@ -29,8 +32,8 @@ const revert = addHook(
       //     target: "es2019",
       //   }
       // })
-      console.log('transpile typescript result', result)
-      return result.outputText
+      // console.log('transpile typescript result', result)
+      // return result.outputText
     } catch (e) {
       console.log('whattt', e)
     }

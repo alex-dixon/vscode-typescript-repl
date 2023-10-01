@@ -36,11 +36,11 @@ R.map(R.inc, R.range(0, 5))
 
 
 // Note: You can refer to previous outputs with $1, $2, $3, etc.
-// @ts-expect-error
-$1
+// @ts-ignore
+// $1
 // => [1, 2, 3, 4, 5]
-// @ts-expect-error
-R.map(R.inc, $1)
+// @ts-ignore
+// R.map(R.inc, $1)
 // => [2, 3, 4, 5, 6]
 
 
@@ -68,7 +68,8 @@ export const numbers = R.range(0, 5)
 // Test importing `numbers` from there, then redefine it here.
 
 // Uncomment the following line when you're ready.
-// export const numbers = R.map(R.inc, R.range(0, 5))
+//
+export const numbers = R.map(R.inc, R.range(0, 5))
 
 
 

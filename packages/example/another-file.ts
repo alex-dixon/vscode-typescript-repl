@@ -11,7 +11,7 @@ numbers
 //  at Object.runInContext (node:vm:291:6)
 
 // Import the definition for `numbers` from `a-file.ts`.
-import { numbers } from './a-file'
+import { numbers } from 'ns:a-file.ts'
 // => [0, 1, 2, 3, 4]
 
 
