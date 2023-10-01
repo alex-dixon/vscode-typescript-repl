@@ -122,7 +122,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: ${{ env.APP_NAME }}.*.node
+          path: packages/ts-repl-transpile/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
@@ -135,9 +135,9 @@ jobs:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
         node:
-          - '14'
-          - '16'
+#          - '16'
           - '18'
+#          - '20'
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v3
@@ -153,12 +153,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: .
+          path: packages/ts-repl-transpile
       - name: List packages
         run: ls -R .
         shell: bash
       - name: Test bindings
         run: yarn test
+        working-directory: packages/ts-repl-transpile
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
@@ -166,10 +167,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # note. for vscode plugin only need to test the version it uses
+        # pretty sure this is 18 since current electron version dependency is 25.8.
         node:
-          - '14'
-          - '16'
+#          - '16'
           - '18'
+#          - '20'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -185,11 +188,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bindings-x86_64-unknown-linux-gnu
-          path: .
+          path: packages/ts-repl-transpile
       - name: List packages
         run: ls -R .
         shell: bash
+        working-directory: packages/ts-repl-transpile
       - name: Test bindings
+        working-directory: packages/ts-repl-transpile
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
   test-linux-x64-musl-binding:
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
@@ -199,9 +204,9 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
-          - '16'
+#          - '16'
           - '18'
+#          - '20'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -219,11 +224,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bindings-x86_64-unknown-linux-musl
-          path: .
+          path: packages/ts-repl-transpile
       - name: List packages
         run: ls -R .
         shell: bash
+        working-directory: packages/ts-repl-transpile
       - name: Test bindings
+        working-directory: packages/ts-repl-transpile
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
@@ -233,9 +240,9 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
-          - '16'
+#          - '16'
           - '18'
+#          - '20'
     runs-on: ubuntu-latest
     steps:
       - run: docker run --rm --privileged multiarch/qemu-user-static:register --reset
@@ -244,8 +251,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: bindings-armv7-unknown-linux-gnueabihf
-          path: .
+          path: packages/ts-repl-transpile
       - name: List packages
+        working-directory: packages/ts-repl-transpile
         run: ls -R .
         shell: bash
       - name: Install dependencies
@@ -256,7 +264,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: ghcr.io/napi-rs/napi-rs/nodejs:armhf-${{ matrix.node }}
-          options: '-v ${{ github.workspace }}:/build -w /build'
+          options: '-v ${{ github.workspace }}/packages/ts-repl-transpile:/build -w /build'
           run: |
             set -e
             yarn test
