@@ -25,28 +25,35 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: |
+              cd packages/ts-repl-transpile
               yarn build
               strip -x *.node
           - host: windows-latest
-            build: yarn build
+            build: |
+              cd packages/ts-repl-transpile
+              yarn build
             target: x86_64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
+              cd packages/ts-repl-transpile
               set -e &&
               yarn build --target x86_64-unknown-linux-gnu &&
               strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: set -e && yarn build && strip *.node
+            build: |
+              cd packages/ts-repl-transpile
+              set -e && yarn build && strip *.node
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
               sudo apt-get update
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
+              cd packages/ts-repl-transpile
               yarn build --target=armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
     name: stable - ${{ matrix.settings.target }} - node@18
@@ -90,6 +97,8 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: yarn install
+        # this installs all of them :/
+#        working-directory: packages/ts-repl-transpile
       - name: Setup node x86
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
