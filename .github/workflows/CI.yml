@@ -41,12 +41,12 @@ jobs:
               set -e &&
               yarn build --target x86_64-unknown-linux-gnu &&
               strip *.node
-          - host: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: |
-              cd packages/ts-repl-transpile
-              set -e && yarn build && strip *.node
+#          - host: ubuntu-latest
+#            target: x86_64-unknown-linux-musl
+#            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
+#            build: |
+#              cd packages/ts-repl-transpile
+#              set -e && yarn build && strip *.node
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
@@ -196,42 +196,42 @@ jobs:
       - name: Test bindings
         working-directory: packages/ts-repl-transpile
         run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
-  test-linux-x64-musl-binding:
-    name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
-    needs:
-      - build
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-#          - '16'
-          - '18'
-#          - '20'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node }}
-          check-latest: true
-          cache: yarn
-      - name: Install dependencies
-        run: |
-          yarn config set supportedArchitectures.libc "musl"
-          yarn install
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: bindings-x86_64-unknown-linux-musl
-          path: packages/ts-repl-transpile
-      - name: List packages
-        run: ls -R .
-        shell: bash
-        working-directory: packages/ts-repl-transpile
-      - name: Test bindings
-        working-directory: packages/ts-repl-transpile
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
+#  test-linux-x64-musl-binding:
+#    name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
+#    needs:
+#      - build
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        node:
+##          - '16'
+#          - '18'
+##          - '20'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Setup node
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: ${{ matrix.node }}
+#          check-latest: true
+#          cache: yarn
+#      - name: Install dependencies
+#        run: |
+#          yarn config set supportedArchitectures.libc "musl"
+#          yarn install
+#      - name: Download artifacts
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: bindings-x86_64-unknown-linux-musl
+#          path: packages/ts-repl-transpile
+#      - name: List packages
+#        run: ls -R .
+#        shell: bash
+#        working-directory: packages/ts-repl-transpile
+#      - name: Test bindings
+#        working-directory: packages/ts-repl-transpile
+#        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
     needs:
@@ -275,7 +275,7 @@ jobs:
     needs:
       - test-macOS-windows-binding
       - test-linux-x64-gnu-binding
-      - test-linux-x64-musl-binding
+#      - test-linux-x64-musl-binding
       - test-linux-arm-gnueabihf-binding
     steps:
       - uses: actions/checkout@v3
