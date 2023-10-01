@@ -7,12 +7,8 @@ import * as fs from "fs";
 
 const isNamespaceModuleIdent = (id: string) => id.startsWith("ns:")
 
-let myRequire = require
-
 export const createRequire = (namespaces: Namespaces, __dirname: string) => {
   const baseRequire = Module.createRequire(__dirname)
-  // TODO. check if this is needed
-  baseRequire.extensions[".ts"] = myRequire.extensions[".ts"]
   let requestedAbsolutePathToModuleResolvedAbsolutePath = {}
   // @ts-ignore
   let require: NodeJS.Require = (id: string) => {
@@ -38,13 +34,16 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
       // probably because this uses Module.createRequire
 
       const requested = path.join(__dirname, id)
+
+      // if cached return the require result
       if (requestedAbsolutePathToModuleResolvedAbsolutePath[requested]) {
-        return requestedAbsolutePathToModuleResolvedAbsolutePath[requested]
+        return baseRequire(requestedAbsolutePathToModuleResolvedAbsolutePath[requested])
       }
+      // try to resolve it ourselves...:)
+      let resolved = requested
       const toTry = requested.endsWith(".ts")
         ? [requested]
         : [requested + ".ts", path.join(requested, "index.ts")]
-      let resolved = requested
       for (const p of toTry) {
         if (fs.existsSync(p)) {
           resolved = p
@@ -54,7 +53,6 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
       }
       console.log('resolved', resolved)
       return baseRequire(resolved)
-      // return baseRequire(path.join(__dirname, id) + ".ts")
     }
     return baseRequire(id)
   }

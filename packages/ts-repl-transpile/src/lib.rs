@@ -170,7 +170,7 @@ pub fn transform_sync(source: String) -> napi::Result<TransformOutput> {
                 strict_mode: false,
                 ..Default::default()
             },
-            enable_available_feature_from_es_version(EsVersion::Es3),
+            enable_available_feature_from_es_version(EsVersion::Es2016),
             Some(&comments),
         ));
         module.visit_mut_with(&mut TransformAllToVar);
@@ -243,7 +243,7 @@ pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputReg
                 strict_mode: false,
                 ..Default::default()
             },
-            enable_available_feature_from_es_version(EsVersion::Es3),
+            enable_available_feature_from_es_version(EsVersion::Es2016),
             Some(&comments),
         ));
 

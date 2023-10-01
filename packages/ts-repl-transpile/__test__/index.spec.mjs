@@ -57,9 +57,7 @@ test("simple export rewrite", (t) => {
 });
 Object.defineProperty(exports, "foo", {
     enumerable: true,
-    get: function() {
-        return foo;
-    },
+    get: ()=>foo,
     configurable: true
 });
 var foo = 42;\n`,
@@ -246,12 +244,8 @@ function _export(target, all) {
     });
 }
 _export(exports, {
-    foo: function() {
-        return foo;
-    },
-    bar: function() {
-        return bar;
-    }
+    foo: ()=>foo,
+    bar: ()=>bar
 });
 var foo = 42;
 var bar = 43;

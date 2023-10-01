@@ -12,7 +12,11 @@ console.log("gonna add hook")
 const revert = addHook(
   (code, filename) => {
     try {
-      let result = ts.transpileModule(code, {fileName: filename, compilerOptions: {module: ts.ModuleKind.CommonJS}});
+      let result = ts.transpileModule(code, {fileName: filename, compilerOptions: {
+        module: ts.ModuleKind.CommonJS,
+          target: ts.ScriptTarget.ES2022,
+
+        }});
 
       // const result = swc.transformSync(code, {
       //   filename,
@@ -25,7 +29,7 @@ const revert = addHook(
       //     target: "es2019",
       //   }
       // })
-      console.log('result', result)
+      console.log('transpile typescript result', result)
       return result.outputText
     } catch (e) {
       console.log('whattt', e)
