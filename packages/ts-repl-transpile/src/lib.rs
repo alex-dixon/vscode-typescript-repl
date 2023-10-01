@@ -268,7 +268,7 @@ pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputReg
             }
         ).map_err(|err| napi::Error::new(Status::GenericFailure, format!("{:?}", err)))
     });
-    output.clone()
+    output
 }
 
 // can't run tests without a linker error?

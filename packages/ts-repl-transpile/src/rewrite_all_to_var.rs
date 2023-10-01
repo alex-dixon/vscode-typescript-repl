@@ -1,108 +1,139 @@
 use swc_core::common::util::take::Take;
-use swc_core::ecma::ast::{Expr, KeyValueProp, ModuleItem, Prop, PropOrSpread, Stmt, VarDecl, VarDeclKind};
+use swc_core::ecma::ast::{
+  CallExpr, Expr, KeyValueProp, ModuleItem, Prop, PropOrSpread, Stmt, VarDecl, VarDeclKind,
+};
 use swc_core::ecma::utils::quote_ident;
 use swc_core::ecma::visit::VisitMut;
 use swc_core::ecma::visit::VisitMutWith;
 
+pub struct MakeInjectedExportsFnConfigurable;
+
+impl VisitMut for MakeInjectedExportsFnConfigurable {
+  fn visit_mut_call_expr(&mut self, call_expr: &mut CallExpr) {
+    if let Some(expr) = call_expr.callee.as_mut_expr() {
+      match expr.as_mut() {
+        // and of A.b | A['b'] ..?
+        Expr::Member(x) => {
+          if let Some(obj_ident) = x.obj.as_mut_ident() {
+            // subject is Object
+            if obj_ident.sym.to_string() == "Object" {
+              x.prop.as_mut_ident().map(|prop_ident| {
+                // object is defineProperty
+                if prop_ident.sym.to_string() == "defineProperty" {
+                  // rewrite it so configurable option is true
+                  call_expr.args.iter_mut().for_each(|ent| {
+                    match ent.expr.as_mut() {
+                      Expr::Object(n) => {
+                        n.props
+                          .push(PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
+                            key: quote_ident!("configurable").into(),
+                            value: Box::new(true.into()),
+                          }))));
+                      }
+                      _ => {}
+                    };
+                  });
+                }
+              });
+            }
+          }
+        }
+        _ => {}
+      }
+    }
+  }
+}
+
 pub struct TransformAllToVar;
 
 impl VisitMut for TransformAllToVar {
-    fn visit_mut_var_decl(&mut self, n: &mut VarDecl) {
-        n.kind = VarDeclKind::Var;
-    }
-    // fn visit_mut_object_lit(&mut self, n: &mut ObjectLit) {
-    //     n.props.push(PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
-    //         key: quote_ident!("configurable").into(),
-    //         value: Box::new(true.into()),
-    //     }))));
-    // }
-    fn visit_mut_module_items(&mut self, n: &mut Vec<ModuleItem>) {
-        n.visit_mut_children_with(self);
-        n.iter_mut().for_each(|x| match x {
-            ModuleItem::Stmt(x) => {
-                match x {
-                    Stmt::Expr(y) =>
-                        match y.expr.as_mut() {
-                            Expr::Call(call_expr) => {
-                                if let Some(expr) = call_expr.callee.as_mut_expr() {
-                                    match expr.as_mut() {
-                                        Expr::Member(x) => {
-                                            if let Some(obj_ident) = x.obj.as_mut_ident() {
-                                                if obj_ident.sym.to_string() == "Object" {
-                                                    x.prop.as_mut_ident().map(|prop_ident| {
-                                                        if prop_ident.sym.to_string() == "defineProperty" {
-                                                            call_expr.args.iter_mut().for_each(|ent| {
-                                                                match ent.expr.as_mut() {
-                                                                    Expr::Object(n) => {
-                                                                        n.props.push(PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
-                                                                            key: quote_ident!("configurable").into(),
-                                                                            value: Box::new(true.into()),
-                                                                        }))));
-                                                                    }
-                                                                    _ => {}
-                                                                };
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                            }
-                            _ => {}
-                        },
-                    // Stmt::Decl(y) =>
-                    //     match y.as_mut_fn_decl() {
-                    //         Some(decl) => {
-                    //             if decl.ident.sym.to_string() == "_export" {
-                    //                 decl.visit_mut_with(self);
-                    //             }
-                    //         }
-                    //         None => {}
-                    //     }
-                    _ => {}
-                }
+  fn visit_mut_var_decl(&mut self, n: &mut VarDecl) {
+    // println!("VAR DECL {:?}", n);
+    n.kind = VarDeclKind::Var;
+  }
+  // fn visit_mut_object_lit(&mut self, n: &mut ObjectLit) {
+  //     n.props.push(PropOrSpread::Prop(Box::new(Prop::KeyValue(KeyValueProp {
+  //         key: quote_ident!("configurable").into(),
+  //         value: Box::new(true.into()),
+  //     }))));
+  // }
+
+  fn visit_mut_module_items(&mut self, n: &mut Vec<ModuleItem>) {
+    n.visit_mut_children_with(self);
+
+    // Only process the first function declaration called _exports
+    // As far as I can tell this is always the one that is generated by swc
+    // we want to alter the Object.defineProperty call in it and add the
+    // option for configurable: true
+    let mut found_exports = false;
+    n.iter_mut().for_each(|x| match x {
+      ModuleItem::Stmt(x) => match x {
+        Stmt::Decl(y) => {
+          if found_exports {
+            return;
+          }
+          match y.as_mut_fn_decl() {
+            Some(decl) => {
+              if decl.ident.sym.to_string() == "_export" {
+                // decl.visit_mut_children_with(self);
+                decl.visit_mut_children_with(&mut MakeInjectedExportsFnConfigurable);
+                // decl.function.as_mut()
+                //     .body.as_mut()
+                //     .unwrap().stmts.iter_mut()
+                //     .for_each(
+                //         |stmt|
+                //             stmt.as_block()
+                //                 .and_then(|block| block.stmts.iter_mut().for_each(|stmt| stmt.as_mut().visit_mut_with(self)));
+                // )
+
+                found_exports = true;
+              }
             }
-            _ => {}
-        });
-    }
-    // fn visit_mut_module_items(&mut self, n: &mut Vec<ModuleItem>) {
-    //     n.iter_mut().for_each(|x| match x {
-    //         ModuleItem::Stmt(x) => {
-    //             match x {
-    //                 Stmt::Expr(y) =>
-    //                     match y.expr.as_mut() {
-    //                         Expr::Call(z) => {
-    //                             if let Some(f) = z.callee.as_mut_expr() {
-    //                                 match f.as_mut() {
-    //                                     Expr::Member(x) => {
-    //                                         if let Some(y) = x.obj.as_mut_ident() {
-    //                                             if y.sym.to_string() == "Object" {
-    //                                                 x.prop.as_mut_ident().map(|x| {
-    //                                                     if x.sym.to_string() == "defineProperty" {
-    //                                                         z.args[0].expr.as_mut_ident().map(|o| {
-    //                                                             o.sym.to_string() == "exports"
-    //                                                             make_it_configurable()
-    //                                                         });
-    //                                                     } else {
-    //                                                         ()
-    //                                                     }
-    //                                                 });
-    //                                             }
-    //                                         }
-    //                                     }
-    //                                     _ => {}
-    //                                 }
-    //                             }
-    //                         }
-    //                         _ => {}
-    //                     }
-    //                 _ => {}
-    //             }
-    //         }
-    //         _ => {}
-    //     });
-    // }
+            None => {}
+          }
+        }
+        // any expr
+        Stmt::Expr(y) => match y.expr.as_mut() {
+          // and call expr
+          Expr::Call(call_expr) => {
+            if let Some(expr) = call_expr.callee.as_mut_expr() {
+              match expr.as_mut() {
+                // and of A.b | A['b'] ..?
+                Expr::Member(x) => {
+                  if let Some(obj_ident) = x.obj.as_mut_ident() {
+                    // subject is Object
+                    if obj_ident.sym.to_string() == "Object" {
+                      x.prop.as_mut_ident().map(|prop_ident| {
+                        // object is defineProperty
+                        if prop_ident.sym.to_string() == "defineProperty" {
+                          // rewrite it so configurable option is true
+                          call_expr.args.iter_mut().for_each(|ent| {
+                            match ent.expr.as_mut() {
+                              Expr::Object(n) => {
+                                n.props.push(PropOrSpread::Prop(Box::new(Prop::KeyValue(
+                                  KeyValueProp {
+                                    key: quote_ident!("configurable").into(),
+                                    value: Box::new(true.into()),
+                                  },
+                                ))));
+                              }
+                              _ => {}
+                            };
+                          });
+                        }
+                      });
+                    }
+                  }
+                },
+                _ => {}
+              }
+            }
+          }
+          _ => {}
+        },
+        _ => {}
+      },
+      _ => {}
+    });
+  }
 }
