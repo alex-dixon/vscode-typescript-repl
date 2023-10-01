@@ -1,7 +1,7 @@
 {
   "name": "vscode-typescript-repl",
   "displayName": "TypeScript REPL",
-  "description": "Create a TypesScript program from vscode files",
+  "description": "Run TypeScript instantly.",
   "version": "0.0.2",
   "engines": {
     "vscode": "^1.81.0"
