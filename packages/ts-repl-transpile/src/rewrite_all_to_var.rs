@@ -1,4 +1,3 @@
-use swc_core::common::util::take::Take;
 use swc_core::ecma::ast::{
   CallExpr, Expr, KeyValueProp, ModuleItem, Prop, PropOrSpread, Stmt, VarDecl, VarDeclKind,
 };
@@ -68,24 +67,14 @@ impl VisitMut for TransformAllToVar {
     let mut found_exports = false;
     n.iter_mut().for_each(|x| match x {
       ModuleItem::Stmt(x) => match x {
-        Stmt::Decl(y) => {
+        Stmt::Decl(decl) => {
           if found_exports {
             return;
           }
-          match y.as_mut_fn_decl() {
+          match decl.as_mut_fn_decl() {
             Some(decl) => {
               if decl.ident.sym.to_string() == "_export" {
-                // decl.visit_mut_children_with(self);
                 decl.visit_mut_children_with(&mut MakeInjectedExportsFnConfigurable);
-                // decl.function.as_mut()
-                //     .body.as_mut()
-                //     .unwrap().stmts.iter_mut()
-                //     .for_each(
-                //         |stmt|
-                //             stmt.as_block()
-                //                 .and_then(|block| block.stmts.iter_mut().for_each(|stmt| stmt.as_mut().visit_mut_with(self)));
-                // )
-
                 found_exports = true;
               }
             }
@@ -124,7 +113,7 @@ impl VisitMut for TransformAllToVar {
                       });
                     }
                   }
-                },
+                }
                 _ => {}
               }
             }

@@ -9,7 +9,7 @@ extern crate napi_derive;
 
 use std::sync::Arc;
 use std::borrow::Borrow;
-use swc_core::base::{Compiler, try_with_handler};
+use swc_core::base::{Compiler};
 use swc_core::common::{FileName, FilePathMapping, Globals, SourceMap};
 use swc_core::common::sync::Lazy;
 use swc_core::ecma::codegen::text_writer::JsWriter;
@@ -201,7 +201,6 @@ pub fn transform_sync(source: String) -> napi::Result<TransformOutput> {
 /// Translates TS to JS
 #[napi]
 pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputRegular> {
-    println!("How could this be so dum?");
     let cm: Arc<SourceMap> = Default::default();
     let globals = Globals::new();
 

@@ -73,7 +73,7 @@ macro_rules! impl_from_option_boxed {
                             end: value.span_hi().0,
                             r#type: $name,
                           };
-                        println!("heyo {:?}", &n);
+                        // println!("heyo {:?}", &n);
                         n
                     }
                 }
@@ -668,7 +668,7 @@ impl VisitMut for FindNeighbors {
     }
     // fn visit_mut_param_or_ts_param_props(&mut self, n: &mut Vec<ParamOrTsParamProp>) { add_if_in_span!(self, n); }
     fn visit_mut_params(&mut self, n: &mut Vec<Param>) {
-        println!("visiting vec of param");
+        // println!("visiting vec of param");
         n.iter_mut().for_each(|param| {
             param.visit_mut_with(self);
         })

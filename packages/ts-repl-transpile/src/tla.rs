@@ -2,11 +2,9 @@ use swc_core::base::atoms::JsWord;
 use swc_core::common::DUMMY_SP;
 use swc_core::common::util::take::Take;
 use swc_core::ecma::ast::{ArrowExpr, AssignExpr, BindingIdent, BlockStmt, BlockStmtOrExpr, CallExpr, Decl, Expr, ExprStmt, FnExpr, Function, Ident, KeyValueProp, Module, ModuleItem, ObjectPatProp, op, ParenExpr, Pat, Prop, PropOrSpread, ReturnStmt, Stmt, VarDecl, VarDeclarator, VarDeclKind};
-use swc_core::ecma::utils::{contains_top_level_await, ExprFactory, quote_ident};
+use swc_core::ecma::utils::{contains_top_level_await, ExprFactory, };
 use swc_core::ecma::visit::Visit;
 use swc_core::ecma::visit::VisitWith;
-use swc_core::ecma::visit::VisitMut;
-use swc_core::ecma::visit::VisitMutWith;
 
 // Does the following:
 // 1. Detects whether there is a top level await in the provided source code
