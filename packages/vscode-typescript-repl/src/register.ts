@@ -4,7 +4,8 @@ import * as ts from "typescript";
 const matcher = (filename) => {
   console.log("matcher", filename)
   // TODO: Implement your logic here
-  return filename.endsWith('.ts');
+  return true
+  // return filename.endsWith('.ts');
 }
 
 console.log("gonna add hook")
@@ -26,8 +27,7 @@ const revert = addHook(
       // })
       console.log('result', result)
       return result.outputText
-    } catch
-      (e) {
+    } catch (e) {
       console.log('whattt', e)
     }
   },

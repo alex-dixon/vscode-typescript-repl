@@ -2,7 +2,7 @@
   "name": "vscode-typescript-repl",
   "displayName": "TypeScript REPL",
   "description": "Create a TypesScript program from vscode files",
-  "version": "0.0.1",
+  "version": "0.0.3-alpha.3",
   "engines": {
     "vscode": "^1.81.0"
   },
@@ -21,10 +21,6 @@
       ]
     },
     "commands": [
-      {
-        "command": "typescript-repl.helloWorld",
-        "title": "Hello World"
-      },
       {
         "command": "typescript-repl.evaluate",
         "title": "Evaluate"
@@ -52,7 +48,9 @@
     "build": "esbuild ./src/extension.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node --external:'@swc/*' --external:'*.node'",
     "watch": "yarn build --watch --sourcemap",
     "test": "node ./dist/test/runTest.js",
-    "package": "yarn build && ./postbuild.sh && vsce package --no-dependencies"
+    "package": "yarn build && ./postbuild.sh && vsce package --no-dependencies",
+    "publish": "yarn package && echo 'go to https://marketplace.visualstudio.com/manage/publishers/AlexDixon' ",
+    "package:test": "npm version prerelease --no-workspaces-update --preid alpha && yarn package"
   },
   "dependencies": {
     "@effect/data": "^0.18.3",

@@ -3,11 +3,17 @@ import * as vm from "vm"
 import * as util from "util"
 import {Namespaces} from "./namespace"
 import * as path from 'node:path'
+import * as fs from "fs";
 
 const isNamespaceModuleIdent = (id: string) => id.startsWith("ns:")
 
+let myRequire = require
+
 export const createRequire = (namespaces: Namespaces, __dirname: string) => {
   const baseRequire = Module.createRequire(__dirname)
+  // TODO. check if this is needed
+  baseRequire.extensions[".ts"] = myRequire.extensions[".ts"]
+  let requestedAbsolutePathToModuleResolvedAbsolutePath = {}
   // @ts-ignore
   let require: NodeJS.Require = (id: string) => {
     if (isNamespaceModuleIdent(id)) {
@@ -18,14 +24,35 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
       }
       return namespace.context.exports || {}
     }
-    // resolve relative paths outside extension-land
+    // resolve relative paths outside extension-land (relative to the file being evaluated)
     if (id.startsWith("./")) {
       console.log("Requiring a relative filesystem path thing?", {
         id, __dirname,
-        fullPath: path.join(__dirname, id) + ".ts"
+        // fromLibraryRequire: myRequire.resolve(id),
+        fullPath: path.join(__dirname, id)
       })
-      const resolved = baseRequire.resolve(id)
-      console.log('resolved',resolved)
+      // TODO: tempting as it would be to just implement the logic here directly and be done with it,
+      //  there's the potential for a lot of perf loss here (no caching, syscalls, etc).
+      // at the end of the day this should just be a normal ts-node require.
+      // it should be patched by pirates/addHook in ./register.ts file already. but it's not,
+      // probably because this uses Module.createRequire
+
+      const requested = path.join(__dirname, id)
+      if (requestedAbsolutePathToModuleResolvedAbsolutePath[requested]) {
+        return requestedAbsolutePathToModuleResolvedAbsolutePath[requested]
+      }
+      const toTry = requested.endsWith(".ts")
+        ? [requested]
+        : [requested + ".ts", path.join(requested, "index.ts")]
+      let resolved = requested
+      for (const p of toTry) {
+        if (fs.existsSync(p)) {
+          resolved = p
+          requestedAbsolutePathToModuleResolvedAbsolutePath[requested] = resolved
+          break
+        }
+      }
+      console.log('resolved', resolved)
       return baseRequire(resolved)
       // return baseRequire(path.join(__dirname, id) + ".ts")
     }
