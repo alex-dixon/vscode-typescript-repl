@@ -9,7 +9,7 @@ extern crate napi_derive;
 
 use std::sync::Arc;
 use std::borrow::Borrow;
-use swc_core::base::{Compiler, try_with_handler};
+use swc_core::base::{Compiler};
 use swc_core::common::{FileName, FilePathMapping, Globals, SourceMap};
 use swc_core::common::sync::Lazy;
 use swc_core::ecma::codegen::text_writer::JsWriter;
@@ -170,7 +170,7 @@ pub fn transform_sync(source: String) -> napi::Result<TransformOutput> {
                 strict_mode: false,
                 ..Default::default()
             },
-            enable_available_feature_from_es_version(EsVersion::Es3),
+            enable_available_feature_from_es_version(EsVersion::Es2016),
             Some(&comments),
         ));
         module.visit_mut_with(&mut TransformAllToVar);
@@ -201,7 +201,6 @@ pub fn transform_sync(source: String) -> napi::Result<TransformOutput> {
 /// Translates TS to JS
 #[napi]
 pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputRegular> {
-    println!("How could this be so dum?");
     let cm: Arc<SourceMap> = Default::default();
     let globals = Globals::new();
 
@@ -244,7 +243,7 @@ pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputReg
                 strict_mode: false,
                 ..Default::default()
             },
-            enable_available_feature_from_es_version(EsVersion::Es3),
+            enable_available_feature_from_es_version(EsVersion::Es2016),
             Some(&comments),
         ));
 
@@ -268,7 +267,7 @@ pub fn transform_sync_regular(source: String) -> napi::Result<TransformOutputReg
             }
         ).map_err(|err| napi::Error::new(Status::GenericFailure, format!("{:?}", err)))
     });
-    output.clone()
+    output
 }
 
 // can't run tests without a linker error?

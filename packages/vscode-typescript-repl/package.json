@@ -1,15 +1,15 @@
 {
   "name": "vscode-typescript-repl",
-  "displayName": "typescript-repl",
-  "description": "typescript-repl",
-  "version": "0.0.1",
+  "displayName": "TypeScript REPL",
+  "description": "Run TypeScript instantly.",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.81.0"
   },
   "categories": [
     "Other"
   ],
-  "publisher": "Alex Dixon",
+  "publisher": "AlexDixon",
   "activationEvents": [],
   "main": "./dist/index.js",
   "contributes": {
@@ -21,10 +21,6 @@
       ]
     },
     "commands": [
-      {
-        "command": "typescript-repl.helloWorld",
-        "title": "Hello World"
-      },
       {
         "command": "typescript-repl.evaluate",
         "title": "Evaluate"
@@ -50,9 +46,11 @@
   },
   "scripts": {
     "build": "esbuild ./src/extension.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node --external:'@swc/*' --external:'*.node'",
-    "watch": "yarn build --watch",
+    "watch": "yarn build --watch --sourcemap",
     "test": "node ./dist/test/runTest.js",
-    "package": "yarn build && ./postbuild.sh && vsce package --no-dependencies"
+    "package": "yarn build && ./postbuild.sh && vsce package --no-dependencies",
+    "publish": "yarn package && echo 'go to https://marketplace.visualstudio.com/manage/publishers/AlexDixon' ",
+    "package:test": "npm version prerelease --no-workspaces-update --preid alpha && yarn package"
   },
   "dependencies": {
     "@effect/data": "^0.18.3",

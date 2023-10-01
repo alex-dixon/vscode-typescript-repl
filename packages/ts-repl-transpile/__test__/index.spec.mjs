@@ -57,9 +57,7 @@ test("simple export rewrite", (t) => {
 });
 Object.defineProperty(exports, "foo", {
     enumerable: true,
-    get: function() {
-        return foo;
-    },
+    get: ()=>foo,
     configurable: true
 });
 var foo = 42;\n`,
@@ -219,5 +217,43 @@ test("just rewrite typescript to javascript",(t)=> {
 await foo();
 `
   })
+
+})
+
+test ("redecl when swc uses a loop for multiple exports", (t) => {
+    const input = `
+    export const foo = 42;
+    export const bar = 43;
+    function _export (obj, name, getter) {
+        if (name in obj) {
+            } 
+            }
+    `;
+    const output = transformSync(input);
+    console.log("the output", output.code.toString());
+    t.deepEqual(output, {
+        code: `Object.defineProperty(exports, "__esModule", {
+    value: true,
+    configurable: true
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name],
+        configurable: true
+    });
+}
+_export(exports, {
+    foo: ()=>foo,
+    bar: ()=>bar
+});
+var foo = 42;
+var bar = 43;
+function _export(obj, name, getter) {
+    if (name in obj) {}
+}
+`,
+        isAsync: false
+    })
 
 })
