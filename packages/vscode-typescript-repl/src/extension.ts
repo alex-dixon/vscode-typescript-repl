@@ -1,17 +1,38 @@
 console.log("HECKINNNN", require("../package.json").version)
 import './register'
-import {createREPL, evaluate} from "./repl";
+import {logger} from "./logger";
+import {createREPL, evaluate, repls} from "./repl";
 import * as path from 'node:path'
 import * as vscode from 'vscode';
 
 let myREPL = createREPL({name: 'test-repl-id'})
 let chan = vscode.window.createOutputChannel("typescript-repl")
+let filepathsChangedSinceLastEvaluation = new Set<string>()
 
 export function activate(context: vscode.ExtensionContext) {
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
+  vscode.workspace.onWillSaveTextDocument(e => {
+    logger.debug("Will save text document", e)
+  })
+  vscode.workspace.onDidChangeTextDocument(e => {
+    if (!e.contentChanges.length) {
+      return
+    }
+
+    logger.debug("Change text document content", e)
+
+    // Could be any file type.
+    // The extension will try to support any file type,
+    // but as far as we know dirty tracking is only relevant for js/ts i.e. files that can be required
+    if (e.document.languageId === 'typescript' || e.document.languageId === 'javascript') {
+      // Note: other identifiers are available under document.uri if ever needed.
+      // The contents of the set should match what is used in the require cache, expected to be an absolute filepath
+      filepathsChangedSinceLastEvaluation.add(e.document.fileName)
+      // Note: it would be best to remove from the set when the file is in the set and this event tells us the file
+      // is not dirty anymore. It's not clear whether isDirty is reliable atm
+    }
+  })
+
   let disposable = vscode.commands.registerCommand('typescript-repl.evaluate', async () => {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
@@ -20,18 +41,43 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage('no selected editor?');
       return;
     }
-    // const repl = createREPL({name:'test-repl-id'})
 
     const selection = editor.selection;
     const text = editor.document.getText(selection);
     const currentlyOpenTabFilePath = vscode.window.activeTextEditor.document.fileName;
-    const currentlyOpenTabFileName = path.basename(currentlyOpenTabFilePath);
+    // const currentlyOpenTabFileName = path.basename(currentlyOpenTabFilePath);
     const currentlyOpenTabDirname = path.dirname(currentlyOpenTabFilePath);
 
     try {
+      if (
+        // when this namespace has been defined and some js/ts files have changed since the last evaluation of it
+        repls.get(myREPL.id)?.namespaces[currentlyOpenTabFilePath] &&
+        filepathsChangedSinceLastEvaluation.size
+      ) {
+        let toRefresh = [...filepathsChangedSinceLastEvaluation]
+        Object.entries(repls.get(myREPL.id)?.namespaces).forEach(([k, v]) => {
+          let req = v.context.require as NodeJS.Require
+          if (!req) {
+            logger.warn("Expected require to be defined on context",)
+            return
+          }
+
+          // Force the module to be reloaded from disk.
+          // Note: maybe it's faster to load from the file in memory via vscode
+          // todo. verify this isn't required for require.children
+          toRefresh.forEach(id => {
+            logger.debug("Refreshing", id)
+            delete req.cache[id]
+          })
+
+          // clear for next evaluation
+          filepathsChangedSinceLastEvaluation.clear()
+
+        })
+      }
       const result = await evaluate({
         code: text,
-        filename: currentlyOpenTabFileName,
+        filename: currentlyOpenTabFilePath,//currentlyOpenTabFileName,
         replId: myREPL.id,
         __dirname: currentlyOpenTabDirname
       }, undefined)
@@ -74,7 +120,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         const result = await evaluate({
           code: text,
-          filename: currentlyOpenTabFileName,
+          filename: currentlyOpenTabFilePath,//currentlyOpenTabFileName,
           replId: myREPL.id,
           __dirname: currentlyOpenTabDirname
         }, undefined)

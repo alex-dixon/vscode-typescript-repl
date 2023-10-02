@@ -73,8 +73,8 @@ export type REPL = {
   }
 }
 
-type REPLs = Map<string, REPL>
-let repls: REPLs = new Map<string, REPL>()
+export type REPLs = Map<string, REPL>
+export let repls: REPLs = new Map<string, REPL>()
 // let replSessions = new Map<string, any>()
 
 export type REPLOutboundEventMap = {
@@ -338,7 +338,7 @@ export const evaluate = async (args: EvaluateInput, socket: unknown): Promise<Er
 
   // define it anyway...?
   if (!namespace) {
-    console.error("Expected namespace to be defined by now", {
+    console.debug("Expected namespace to be defined by now", {
       namespace: filenameOrNamespace,
     })
 

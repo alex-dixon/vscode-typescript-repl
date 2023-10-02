@@ -4,6 +4,7 @@ import * as util from "util"
 import {Namespaces} from "./namespace"
 import * as path from 'node:path'
 import * as fs from "fs";
+import {logger} from "./logger";
 
 const isNamespaceModuleIdent = (id: string) => id.startsWith("ns:")
 
@@ -22,7 +23,7 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
     }
     // resolve relative paths outside extension-land (relative to the file being evaluated)
     if (id.startsWith("./")) {
-      console.log("Requiring a relative filesystem path thing?", {
+      logger.debug("Requiring a relative filesystem path thing?", {
         id, __dirname,
         // fromLibraryRequire: myRequire.resolve(id),
         fullPath: path.join(__dirname, id)

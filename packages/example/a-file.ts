@@ -53,6 +53,7 @@ numbers
 // => [0, 1, 2, 3, 4]
 
 // Redefine numbers as the result of mapping the inc function over the range.
+// @ts-ignore
 const numbers = R.map(R.inc, R.range(0, 5))
 // => undefined
 numbers
@@ -61,15 +62,16 @@ numbers
 
 // Exports
 // Make numbers available in other files.
+// @ts-ignore
 export const numbers = R.range(0, 5)
 // => { numbers: [ 0, 1, 2, 3, 4 ] }
 
-// Open `another-file.ts` for about imports.
-// Test importing `numbers` from there, then redefine it here.
+// Open `another-file.ts` and test importing `numbers` from there.
+// You should see [0, 1, 2, 3, 4]
 
-// Uncomment the following line when you're ready.
-//
-export const numbers = R.map(R.inc, R.range(0, 5))
+// 
+// Uncomment the following line and evaluate the import from another-file again.
+// export const numbers = R.map(R.inc, R.range(0, 5))
 
 
 
