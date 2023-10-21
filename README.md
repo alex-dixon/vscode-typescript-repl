@@ -1,5 +1,6 @@
 # vscode-typescript-repl
-![Visual Studio Marketplace](https://vsmarketplacebadges.dev/version/AlexDixon.vscode-typescript-repl.svg)
+[![Visual Studio Marketplace](https://vsmarketplacebadges.dev/version/AlexDixon.vscode-typescript-repl.svg)](https://marketplace.visualstudio.com/items?itemName=AlexDixon.vscode-typescript-repl)
+
 
 This is the README for "typescript-repl". After writing up a brief description, we recommend including the following sections.
 
