@@ -45,7 +45,6 @@ export function activate(context: vscode.ExtensionContext) {
     const selection = editor.selection;
     const text = editor.document.getText(selection);
     const currentlyOpenTabFilePath = vscode.window.activeTextEditor.document.fileName;
-    // const currentlyOpenTabFileName = path.basename(currentlyOpenTabFilePath);
     const currentlyOpenTabDirname = path.dirname(currentlyOpenTabFilePath);
 
     try {
@@ -77,7 +76,7 @@ export function activate(context: vscode.ExtensionContext) {
       }
       const result = await evaluate({
         code: text,
-        filename: currentlyOpenTabFilePath,//currentlyOpenTabFileName,
+        filename: currentlyOpenTabFilePath,
         replId: myREPL.id,
         __dirname: currentlyOpenTabDirname
       }, undefined)
@@ -106,21 +105,19 @@ export function activate(context: vscode.ExtensionContext) {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
         // No open text editor
-        console.log("no editor")
+        logger.error("no activeTextEditor")
         vscode.window.showInformationMessage('no selected editor?');
         return;
       }
-      // const repl = createREPL({name:'test-repl-id'})
 
       const text = editor.document.getText()
       const currentlyOpenTabFilePath = vscode.window.activeTextEditor.document.fileName;
-      const currentlyOpenTabFileName = path.basename(currentlyOpenTabFilePath);
       const currentlyOpenTabDirname = path.dirname(currentlyOpenTabFilePath);
 
       try {
         const result = await evaluate({
           code: text,
-          filename: currentlyOpenTabFilePath,//currentlyOpenTabFileName,
+          filename: currentlyOpenTabFilePath,
           replId: myREPL.id,
           __dirname: currentlyOpenTabDirname
         }, undefined)
@@ -134,11 +131,11 @@ export function activate(context: vscode.ExtensionContext) {
           chan.show(true)
           // vscode.window.showInformationMessage(result.result);
         } else {
-          console.error(result)
+          logger.error(result)
           throw new Error("Unhandled result")
         }
       } catch (e) {
-        console.error(e)
+        logger.error(e)
         vscode.window.showInformationMessage(e.toString());
       }
     })

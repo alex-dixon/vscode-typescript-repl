@@ -66,14 +66,14 @@ numbers
 export const numbers = R.range(0, 5)
 // => { numbers: [ 0, 1, 2, 3, 4 ] }
 
-// Open `another-file.ts` and test importing `numbers` from there.
+/**
+ * Open @link file://./another-file.ts and test importing `numbers`.
+ */
 // You should see [0, 1, 2, 3, 4]
 
 // 
 // Uncomment the following line and evaluate the import from another-file again.
 // export const numbers = R.map(R.inc, R.range(0, 5))
-
-
 
 
 
