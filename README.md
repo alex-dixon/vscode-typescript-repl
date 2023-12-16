@@ -1,4 +1,7 @@
 # vscode-typescript-repl
+![image](https://github.com/alex-dixon/vscode-typescript-repl/assets/9045165/48e5f343-a5a6-46ad-8e6f-ca55db898ee1)
+
+
 [![Visual Studio Marketplace](https://vsmarketplacebadges.dev/version/AlexDixon.vscode-typescript-repl.svg)](https://marketplace.visualstudio.com/items?itemName=AlexDixon.vscode-typescript-repl)
 
 
@@ -12,11 +15,11 @@ This is a plugin for VSCode that provides an interactive programming experience 
 ### Reason locally
 Debugging one function shouldn't require running the entire program. 
 
-### Make exploration easy
+### Explore easily
 It should not be a chore to do good things. Running code is ultimately how we know it works. The ability to do this easier and faster has compunding effects on software development. 
 
 ### Combine getting it working with it working
-A REPL integrated with project files means you can interact with code one locally one moment and ship it the next.
+An integrated project REPL environment lets you write and evaluate code one moment and ship it the next.
 
 ### Code in files
 
