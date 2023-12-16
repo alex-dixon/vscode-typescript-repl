@@ -2,25 +2,33 @@
 [![Visual Studio Marketplace](https://vsmarketplacebadges.dev/version/AlexDixon.vscode-typescript-repl.svg)](https://marketplace.visualstudio.com/items?itemName=AlexDixon.vscode-typescript-repl)
 
 
-This is the README for "typescript-repl". After writing up a brief description, we recommend including the following sections.
+This is a plugin for VSCode that provides an interactive programming experience for the TypeScript programming language. 
 
-## Gotchas
-when local dev must symlink swc-ts-repl-transpile / reference the path to the directory that contains its package.json. Doing so does not copy the built file in the same directory e.g. arch_blah.node
-This must be copied into the project's node modules dir corresponding to the symlink pnpm creates.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Develop faster
 
-For example if there is an image subfolder under your extension project workspace:
 
-\!\[feature X\]\(images/feature-x.png\)
+### Reason locally
+Debugging one function shouldn't require running the entire program. 
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Make exploration easy
+It should not be a chore to do good things. Running code is ultimately how we know it works. The ability to do this easier and faster has compunding effects on software development. 
+
+### Combine getting it working with it working
+A REPL integrated with project files means you can interact with code one locally one moment and ship it the next.
+
+### Code in files
+
+### Evaluate any code in any file
+
+### Interact with your software
+
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+macOS
 
 ## Extension Settings
 
@@ -32,10 +40,6 @@ This extension contributes the following settings:
 
 * `myExtension.enable`: Enable/disable this extension.
 * `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
 
 ## Release Notes
 
