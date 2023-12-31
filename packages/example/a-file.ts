@@ -1,10 +1,10 @@
-// TypeScript REPL: Hello World
-// Incrementing a list of numbers
+// TypeScript REPL
 
-// First, import ramda to show support for 3rd party node modules and to make things a bit easier.
+// "Hello, World!"
+// Increment a list of numbers.
 
-// Evaluate the following line by:
-// 1. Selecting the text
+// Evaluate line 9 by:
+// 1. Highlighting it.
 // 2. Selecting "Evaluate" from the Command Palette (Cmd + P).
 import * as R from 'ramda'
 
@@ -45,6 +45,7 @@ R.map(R.inc, R.range(0, 5))
 
 
 // Variables
+//
 // Define `numbers` as the result of the range function.
 const numbers = R.range(0, 5)
 
@@ -61,6 +62,7 @@ numbers
 
 
 // Exports
+//
 // Make numbers available in other files.
 // @ts-ignore
 export const numbers = R.range(0, 5)
@@ -76,6 +78,21 @@ export const numbers = R.range(0, 5)
 // export const numbers = R.map(R.inc, R.range(0, 5))
 
 
+// Types
+//
+// You can use TypeScript types in code.
+// You can evaluate them safely. They produce an empty result in the REPL.
+type MyType = Record<string, any>
+// => undefined
+
+
+// Async
+//
+// Async functions are supported with top level await
+const someAsyncFn = async () => fetch('http://google.com')
+
+await someAsyncFn().then(x=>x.text())
+someAsyncFn()
 
 
 

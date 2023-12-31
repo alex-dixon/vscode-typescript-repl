@@ -17,13 +17,17 @@ use swc_core::common::Mark;
 use swc_core::ecma::transforms::base::feature::FeatureFlag;
 use swc_core::common::chain;
 
-pub struct TransformImportNamedToDestructuringRequireVisitor;
+#[derive(Default)]
+pub struct TransformImportNamedToDestructuringRequireVisitor{
+    pub has_export_star:Option<bool>,
+}
 
 impl TransformImportNamedToDestructuringRequireVisitor {
     pub fn handle_import_decl(&mut self, decl: &mut ModuleDecl) -> Option<(ModuleItem, Vec<ModuleItem>)> {
         let n;
         match decl {
             ModuleDecl::Import(import) => n = import,
+
             _ => return None,
         }
 
@@ -193,7 +197,7 @@ impl TransformImportNamedToDestructuringRequireVisitor {
         }).collect();
 
         let rewritten_import = ModuleItem::Stmt(Stmt::Decl(Decl::Var(Box::new(dec))));
-        println!("{:?}", name_statements);
+        // println!("{:?}", name_statements);
         Some((rewritten_import, name_statements))
     }
 }
@@ -209,7 +213,10 @@ impl VisitMut for TransformImportNamedToDestructuringRequireVisitor {
                     // ModuleDecl::ExportNamed(_) => {}
                     // ModuleDecl::ExportDefaultDecl(_) => {}
                     // ModuleDecl::ExportDefaultExpr(_) => {}
-                    // ModuleDecl::ExportAll(_) => {}
+                    ModuleDecl::ExportAll(all) => {
+                        self.has_export_star=Some(true);
+                        return true;
+                    }
                     // ModuleDecl::TsImportEquals(_) => {}
                     // ModuleDecl::TsExportAssignment(_) => {}
                     // ModuleDecl::TsNamespaceExport(_) => {}
@@ -283,7 +290,9 @@ impl VisitMut for TransformImportNamedToDestructuringRequireVisitor {
 #[plugin_transform]
 pub fn process_transform(program: Program, _metadata: TransformPluginProgramMetadata) -> Program {
     program.fold_with(&mut as_folder(
-        TransformImportNamedToDestructuringRequireVisitor,
+        TransformImportNamedToDestructuringRequireVisitor{
+            ..Default::default()
+        },
     ))
 }
 
