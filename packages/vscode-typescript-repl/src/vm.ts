@@ -86,6 +86,16 @@ export const assignGlobal = (context: vm.Context) => {
   const globalDescriptors = Object.getOwnPropertyNames(_global)
   globalDescriptors.forEach((k) => {
     if (!globalBuiltinNames.has(k)) {
+      // this requires special handling due to a globalThis check
+      // that node 18 implements by default
+      if (k === "crypto") {
+        Object.defineProperty(context, 'crypto', {
+          ...Object.getOwnPropertyDescriptor(_global, 'crypto'),
+          get: () => require('crypto').webcrypto
+
+        })
+        return
+      }
       Object.defineProperty(context, k, {
         // @ts-expect-error
         __proto__: null,
