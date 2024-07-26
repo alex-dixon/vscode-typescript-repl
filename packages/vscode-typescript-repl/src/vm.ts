@@ -88,6 +88,7 @@ export const assignGlobal = (context: vm.Context) => {
     if (!globalBuiltinNames.has(k)) {
       // this requires special handling due to a globalThis check
       // that node 18 implements by default
+      // https://github.com/alex-dixon/vscode-typescript-repl/issues/15
       if (k === "crypto") {
         Object.defineProperty(context, 'crypto', {
           ...Object.getOwnPropertyDescriptor(_global, 'crypto'),
