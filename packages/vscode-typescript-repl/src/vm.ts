@@ -22,7 +22,7 @@ export const createRequire = (namespaces: Namespaces, __dirname: string) => {
       return namespace.context.exports || {}
     }
     // resolve relative paths outside extension-land (relative to the file being evaluated)
-    if (id.startsWith("./")) {
+    if (id.startsWith(".") ) {
       logger.debug("Requiring a relative filesystem path thing?", {
         id, __dirname,
         // fromLibraryRequire: myRequire.resolve(id),
