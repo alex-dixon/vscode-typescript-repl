@@ -4,6 +4,7 @@ import {logger} from "./logger";
 import {createREPL, evaluate, repls} from "./repl";
 import * as path from 'node:path'
 import * as vscode from 'vscode';
+import { EventEmitter } from 'node:stream';
 
 let myREPL = createREPL({name: 'test-repl-id'})
 let chan = vscode.window.createOutputChannel("typescript-repl")
@@ -74,25 +75,43 @@ export function activate(context: vscode.ExtensionContext) {
 
         })
       }
+      
+      chan.appendLine(text + " =>")
+
       const result = await evaluate({
         code: text,
         filename: currentlyOpenTabFilePath,
         replId: myREPL.id,
-        __dirname: currentlyOpenTabDirname
-      }, undefined)
+        __dirname: currentlyOpenTabDirname,
+      }, {
+        send: (topic:string, message:any)=> {
+         logger.debug("Recieved", topic, message) 
+        if (topic==='repl:output') {
+          if (message.type==='error') {
+            chan.appendLine(message.text)
+          }
+          if (message.type==='print') {
+            // if (message.input) {
+            //   chan.appendLine(message.input.code + " =>")
+            // }
+            chan.appendLine(message.result)
+            chan.show(true)
+          }
+        }
+      }})
 
-      if (result.type === 'error') {
-        vscode.window.showInformationMessage(result.text);
-        chan.appendLine(result.text)
-      } else if (result.type === 'print') {
-        chan.appendLine(result.result)
-        // TODO. This is annoying because it forces the user to look at the panel...It looks like it doesn't show up otherwise though
-        chan.show(true)
-        // vscode.window.showInformationMessage(result.result);
-      } else {
-        console.error(result)
-        throw new Error("Unhandled result")
-      }
+      // if (result.type === 'error') {
+      //   vscode.window.showInformationMessage(result.text);
+      //   chan.appendLine(result.text)
+      // } else if (result.type === 'print') {
+      //   chan.appendLine(result.result)
+      //   // TODO. This is annoying because it forces the user to look at the panel...It looks like it doesn't show up otherwise though
+      //   chan.show(true)
+      //   // vscode.window.showInformationMessage(result.result);
+      // } else {
+      //   console.error(result)
+      //   throw new Error("Unhandled result")
+      // }
     } catch (e) {
       console.error(e)
       vscode.window.showInformationMessage(e.toString());

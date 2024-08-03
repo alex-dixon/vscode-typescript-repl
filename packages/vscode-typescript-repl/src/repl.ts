@@ -188,7 +188,8 @@ const print = (x: unknown) =>
 
 const api = {
   emit: (socket: any, topic: any, payload: any) => {
-    console.log("emit", {socket, topic, payload})
+    socket?.send(topic,payload)
+    // console.log("emit", {socket, topic, payload})
   },
   broadcast: (topic: string, payload: any) => {
     console.log("broadcast", topic, payload)
@@ -346,7 +347,7 @@ export const evaluate = async (args: EvaluateInput, socket: unknown): Promise<Er
       // todo. append to an array in order to return stuff maybe, or a cb/stream
       api.emit(socket, "repl:output", {
         type: "print",
-        result: args.map((x) => print(x)).join(" "),
+        result: args.map((x) => typeof x === "string" ? x : print(x)).join(" "),
         filename: filenameOrNamespace,
         // todo. view should just print this absent input info
         input: {},
@@ -406,7 +407,22 @@ export const evaluate = async (args: EvaluateInput, socket: unknown): Promise<Er
     jsCode = tsToJS(args.code)
   } catch (e) {
     console.error("tsToJS error", e)
-    return e
+    const error = {
+      type: "error" as const,
+      text: (e as Error).toString(),
+      filename: filenameOrNamespace,
+      input: {
+        type: "expr",
+        code: args.code,
+        filename: filenameOrNamespace,
+      },
+      // todo. ?
+      // message: e.message,
+      // stack: e.stack,
+    }
+
+    // @ts-expect-error ridiculous
+    return error
   }
 
   let ret
